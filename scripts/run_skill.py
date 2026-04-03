@@ -88,7 +88,7 @@ Process the provided transcript through all 6 sections with quality gates. Outpu
 
             # Call Claude API
             response = self.client.messages.create(
-                model="claude-3-5-sonnet-20241022",
+                model="claude-sonnet-4-6",
                 max_tokens=4096,
                 system=system_prompt,
                 messages=[
