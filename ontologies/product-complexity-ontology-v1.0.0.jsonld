@@ -1,0 +1,172 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "klg": "https://klugonyx.com/context/quoting/v1/",
+    "complexity": "https://klugonyx.com/context/quoting/v1/complexity/"
+  },
+  "@type": "owl:Ontology",
+  "@id": "complexity:schema",
+  "name": "Product Complexity Ontology",
+  "description": "Ontology for modeling product complexity factors, signals, and tiers in product development quoting. Defines product types, complexity assessment criteria, mechanism types, and fit requirements for accurate project scoping and estimation.",
+  "version": "1.0.0",
+  "status": "active",
+  "namespace": "https://klugonyx.com/context/quoting/v1/complexity/",
+  "prefix": "complexity:",
+  "dateCreated": "2026-04-02",
+  "dateModified": "2026-04-02",
+  "creator": {
+    "@type": "Organization",
+    "name": "Klugonyx Product Development"
+  },
+  "@graph": [
+    {
+      "@type": "owl:Class",
+      "@id": "complexity:ProductType",
+      "rdfs:label": "Product Type",
+      "rdfs:comment": "Classification of product types for complexity assessment and phase planning",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:oneOf": {
+          "@list": [
+            "complexity:HardGood",
+            "complexity:SoftGood",
+            "complexity:HardSoftHybrid",
+            "complexity:Packaging",
+            "complexity:Branding",
+            "complexity:GraphicExploration",
+            "complexity:CMFStrategy"
+          ]
+        }
+      }
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "complexity:ComplexitySignal",
+      "rdfs:label": "Complexity Signal",
+      "rdfs:comment": "Specific indicators that affect project complexity and resource requirements",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:oneOf": {
+          "@list": [
+            "complexity:UniversalFit",
+            "complexity:NewMechanism",
+            "complexity:NovelMultiSystem",
+            "complexity:ModularReconfigurable",
+            "complexity:Convertible",
+            "complexity:ElectronicsHousing",
+            "complexity:MiniaturizedSealedEnclosure",
+            "complexity:SafetyCritical",
+            "complexity:FoodSafe",
+            "complexity:MedicalAdjacent",
+            "complexity:ChildrensToy",
+            "complexity:IterativeRework",
+            "complexity:MultiSKU",
+            "complexity:OEMBaseCustomization"
+          ]
+        }
+      }
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "complexity:ComplexityTier",
+      "rdfs:label": "Complexity Tier",
+      "rdfs:comment": "Overall complexity classification affecting hour estimates and resource allocation",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:oneOf": {
+          "@list": [
+            "complexity:Low",
+            "complexity:Medium",
+            "complexity:MediumHigh",
+            "complexity:High",
+            "complexity:Extreme"
+          ]
+        }
+      }
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "complexity:MechanismType",
+      "rdfs:label": "Mechanism Type",
+      "rdfs:comment": "Classification of mechanism complexity in product functionality",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:oneOf": {
+          "@list": [
+            "complexity:NoMechanism",
+            "complexity:DiscreteAddOn",
+            "complexity:NewMechanism",
+            "complexity:NovelMultiSystemMechanism"
+          ]
+        }
+      }
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "complexity:FitRequirement",
+      "rdfs:label": "Fit Requirement",
+      "rdfs:comment": "Product fit and sizing requirements affecting design complexity",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:oneOf": {
+          "@list": [
+            "complexity:FixedFit",
+            "complexity:UniversalFit",
+            "complexity:MultiSizeFit"
+          ]
+        }
+      }
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "complexity:hasComplexityScore",
+      "rdfs:label": "has complexity score",
+      "rdfs:comment": "Numerical complexity score (1-10 scale)",
+      "rdfs:domain": "complexity:ComplexitySignal",
+      "rdfs:range": "xsd:integer"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "complexity:hasHourMultiplier",
+      "rdfs:label": "has hour multiplier",
+      "rdfs:comment": "Multiplier factor for hour estimates based on complexity",
+      "rdfs:domain": "complexity:ComplexityTier",
+      "rdfs:range": "xsd:decimal"
+    },
+    {
+      "@type": "owl:ObjectProperty",
+      "@id": "complexity:hasComplexitySignal",
+      "rdfs:label": "has complexity signal",
+      "rdfs:comment": "Associates a product with specific complexity indicators",
+      "rdfs:domain": "complexity:ProductType",
+      "rdfs:range": "complexity:ComplexitySignal"
+    },
+    {
+      "@type": "owl:ObjectProperty",
+      "@id": "complexity:hasComplexityTier",
+      "rdfs:label": "has complexity tier",
+      "rdfs:comment": "Overall complexity tier assignment for a product",
+      "rdfs:domain": "complexity:ProductType",
+      "rdfs:range": "complexity:ComplexityTier"
+    },
+    {
+      "@type": "owl:ObjectProperty",
+      "@id": "complexity:hasMechanismType",
+      "rdfs:label": "has mechanism type",
+      "rdfs:comment": "Type of mechanism complexity in the product",
+      "rdfs:domain": "complexity:ProductType",
+      "rdfs:range": "complexity:MechanismType"
+    },
+    {
+      "@type": "owl:ObjectProperty",
+      "@id": "complexity:hasFitRequirement",
+      "rdfs:label": "has fit requirement",
+      "rdfs:comment": "Fit and sizing requirements for the product",
+      "rdfs:domain": "complexity:ProductType",
+      "rdfs:range": "complexity:FitRequirement"
+    }
+  ]
+}

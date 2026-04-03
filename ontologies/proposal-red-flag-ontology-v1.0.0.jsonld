@@ -1,0 +1,425 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "klg": "https://klugonyx.com/context/quoting/v1/",
+    "redflag": "https://klugonyx.com/context/quoting/v1/redflag/"
+  },
+  "@type": "owl:Ontology",
+  "@id": "redflag:schema",
+  "name": "Proposal Red Flag Ontology",
+  "description": "Ontology for modeling proposal red flags, scope exclusions, and risk assessment rules in product development quoting. Defines warning signals, standard exclusions, and automated risk detection.",
+  "version": "1.0.0",
+  "status": "active",
+  "namespace": "https://klugonyx.com/context/quoting/v1/redflag/",
+  "prefix": "redflag:",
+  "dateCreated": "2026-04-02",
+  "dateModified": "2026-04-02",
+  "creator": {
+    "@type": "Organization",
+    "name": "Klugonyx Product Development"
+  },
+  "@graph": [
+    {
+      "@type": "owl:Class",
+      "@id": "redflag:RedFlag",
+      "rdfs:label": "Red Flag",
+      "rdfs:comment": "Warning signal or risk factor in project requirements"
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "redflag:ScopeExclusion",
+      "rdfs:label": "Scope Exclusion",
+      "rdfs:comment": "Standard items always excluded from proposal scope"
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "redflag:RedFlagRule",
+      "rdfs:label": "Red Flag Rule",
+      "rdfs:comment": "Rule for detecting and firing red flag warnings"
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "redflag:ImpactArea",
+      "rdfs:label": "Impact Area",
+      "rdfs:comment": "Area of project impact for red flags",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:oneOf": {
+          "@list": [
+            "redflag:Hours",
+            "redflag:Rate",
+            "redflag:Scope",
+            "redflag:Exclusion",
+            "redflag:Pattern"
+          ]
+        }
+      }
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "redflag:Severity",
+      "rdfs:label": "Severity",
+      "rdfs:comment": "Severity level of red flag",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:oneOf": {
+          "@list": [
+            "redflag:Low",
+            "redflag:Medium",
+            "redflag:High",
+            "redflag:Critical"
+          ]
+        }
+      }
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "redflag:id",
+      "rdfs:label": "red flag ID",
+      "rdfs:comment": "Unique identifier for the red flag",
+      "rdfs:domain": "redflag:RedFlag",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "redflag:name",
+      "rdfs:label": "red flag name",
+      "rdfs:comment": "Descriptive name of the red flag",
+      "rdfs:domain": "redflag:RedFlag",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "redflag:triggerKeywords",
+      "rdfs:label": "trigger keywords",
+      "rdfs:comment": "Keywords that trigger this red flag",
+      "rdfs:domain": "redflag:RedFlag",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "redflag:recommendation",
+      "rdfs:label": "recommendation",
+      "rdfs:comment": "Recommended action when red flag is triggered",
+      "rdfs:domain": "redflag:RedFlag",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:ObjectProperty",
+      "@id": "redflag:hasImpactArea",
+      "rdfs:label": "has impact area",
+      "rdfs:comment": "Area of project impact",
+      "rdfs:domain": "redflag:RedFlag",
+      "rdfs:range": "redflag:ImpactArea"
+    },
+    {
+      "@type": "owl:ObjectProperty",
+      "@id": "redflag:hasSeverity",
+      "rdfs:label": "has severity",
+      "rdfs:comment": "Severity level of the red flag",
+      "rdfs:domain": "redflag:RedFlag",
+      "rdfs:range": "redflag:Severity"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:UniversalFitFlag",
+      "redflag:id": "RF001",
+      "redflag:name": "Universal Fit Requirement",
+      "redflag:triggerKeywords": ["universal fit", "one size fits all", "adjustable", "variable sizing"],
+      "redflag:hasImpactArea": "redflag:Hours",
+      "redflag:hasSeverity": "redflag:High",
+      "redflag:recommendation": "Add significant additional hours for fit validation and sizing studies"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:ElectronicsBluetoothFlag",
+      "redflag:id": "RF002",
+      "redflag:name": "Electronics/Bluetooth Integration",
+      "redflag:triggerKeywords": ["electronics", "bluetooth", "wireless", "smart device", "IoT", "connected"],
+      "redflag:hasImpactArea": "redflag:Exclusion",
+      "redflag:hasSeverity": "redflag:Critical",
+      "redflag:recommendation": "Exclude electrical engineering - refer to electronics partner"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:NovelMultiSystemFlag",
+      "redflag:id": "RF003",
+      "redflag:name": "Novel Multi-System Mechanism",
+      "redflag:triggerKeywords": ["novel mechanism", "multi-system", "complex mechanism", "new technology"],
+      "redflag:hasImpactArea": "redflag:Hours",
+      "redflag:hasSeverity": "redflag:High",
+      "redflag:recommendation": "Add 50-100% hour buffer for mechanism development and testing"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:SafetyCriticalFlag",
+      "redflag:id": "RF004",
+      "redflag:name": "Safety-Critical Application",
+      "redflag:triggerKeywords": ["safety critical", "life safety", "emergency", "first aid", "protective"],
+      "redflag:hasImpactArea": "redflag:Scope",
+      "redflag:hasSeverity": "redflag:Critical",
+      "redflag:recommendation": "Requires safety certification consultation and extensive testing"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:MedicalAdjacentFlag",
+      "redflag:id": "RF005",
+      "redflag:name": "Medical-Adjacent Product",
+      "redflag:triggerKeywords": ["medical", "healthcare", "therapeutic", "clinical", "patient"],
+      "redflag:hasImpactArea": "redflag:Scope",
+      "redflag:hasSeverity": "redflag:Critical",
+      "redflag:recommendation": "Requires FDA/medical device regulatory consultation"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:FoodSafeFlag",
+      "redflag:id": "RF006",
+      "redflag:name": "Food-Safe Requirements",
+      "redflag:triggerKeywords": ["food safe", "FDA approved", "food contact", "kitchen", "eating"],
+      "redflag:hasImpactArea": "redflag:Scope",
+      "redflag:hasSeverity": "redflag:High",
+      "redflag:recommendation": "Requires food-safe materials specification and testing"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:ChildrensToyFlag",
+      "redflag:id": "RF007",
+      "redflag:name": "Children's Toy",
+      "redflag:triggerKeywords": ["children", "kids", "toy", "ages 0-12", "child safe"],
+      "redflag:hasImpactArea": "redflag:Scope",
+      "redflag:hasSeverity": "redflag:High",
+      "redflag:recommendation": "Requires CPSC compliance and safety testing protocols"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:ModularReconfigurableFlag",
+      "redflag:id": "RF008",
+      "redflag:name": "Modular/Reconfigurable Design",
+      "redflag:triggerKeywords": ["modular", "reconfigurable", "configurable", "interchangeable"],
+      "redflag:hasImpactArea": "redflag:Hours",
+      "redflag:hasSeverity": "redflag:Medium",
+      "redflag:recommendation": "Add 30-50% hours for modular system design and interface definition"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:ConvertibleFlag",
+      "redflag:id": "RF009",
+      "redflag:name": "Convertible Product",
+      "redflag:triggerKeywords": ["convertible", "transforms", "multiple configurations", "multi-mode"],
+      "redflag:hasImpactArea": "redflag:Hours",
+      "redflag:hasSeverity": "redflag:Medium",
+      "redflag:recommendation": "Add additional hours for conversion mechanism and user experience"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:FutureEcosystemFlag",
+      "redflag:id": "RF010",
+      "redflag:name": "Future Product Ecosystem",
+      "redflag:triggerKeywords": ["ecosystem", "product family", "platform", "future products"],
+      "redflag:hasImpactArea": "redflag:Scope",
+      "redflag:hasSeverity": "redflag:Medium",
+      "redflag:recommendation": "Define ecosystem scope boundaries clearly in SOW"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:IterativeReworkFlag",
+      "redflag:id": "RF011",
+      "redflag:name": "Iterative Rework Requirements",
+      "redflag:triggerKeywords": ["iterative", "multiple rounds", "rework", "refinement"],
+      "redflag:hasImpactArea": "redflag:Hours",
+      "redflag:hasSeverity": "redflag:Medium",
+      "redflag:recommendation": "Cap revision rounds and define additional work as change orders"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:HardSoftHybridFlag",
+      "redflag:id": "RF012",
+      "redflag:name": "Hard/Soft Hybrid Split EFP",
+      "redflag:triggerKeywords": ["hybrid", "hard and soft", "mixed materials", "textile integration"],
+      "redflag:hasImpactArea": "redflag:Pattern",
+      "redflag:hasSeverity": "redflag:Medium",
+      "redflag:recommendation": "Split EFP into separate hard goods and soft goods phases"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:ElectronicsHousingFlag",
+      "redflag:id": "RF013",
+      "redflag:name": "Electronics Housing",
+      "redflag:triggerKeywords": ["electronics housing", "enclosure", "device housing", "electronic assembly"],
+      "redflag:hasImpactArea": "redflag:Hours",
+      "redflag:hasSeverity": "redflag:Medium",
+      "redflag:recommendation": "Add hours for precise fit and heat management considerations"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:MiniaturizedSealedFlag",
+      "redflag:id": "RF014",
+      "redflag:name": "Miniaturized Sealed Enclosure",
+      "redflag:triggerKeywords": ["miniaturized", "sealed enclosure", "waterproof", "compact"],
+      "redflag:hasImpactArea": "redflag:Hours",
+      "redflag:hasSeverity": "redflag:High",
+      "redflag:recommendation": "Add significant hours for sealing and miniaturization engineering"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:RetailDTCPackagingFlag",
+      "redflag:id": "RF015",
+      "redflag:name": "Retail vs DTC Packaging",
+      "redflag:triggerKeywords": ["retail packaging", "DTC", "direct to consumer", "shelf display"],
+      "redflag:hasImpactArea": "redflag:Scope",
+      "redflag:hasSeverity": "redflag:Low",
+      "redflag:recommendation": "Clarify packaging requirements and distribution channels"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:InstructionManualsFlag",
+      "redflag:id": "RF016",
+      "redflag:name": "Instruction Manuals",
+      "redflag:triggerKeywords": ["instruction manual", "user guide", "assembly instructions", "documentation"],
+      "redflag:hasImpactArea": "redflag:Exclusion",
+      "redflag:hasSeverity": "redflag:Low",
+      "redflag:recommendation": "Exclude instruction manual creation - refer to technical writing partner"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:MultiSKUPortfolioFlag",
+      "redflag:id": "RF017",
+      "redflag:name": "Multi-SKU Portfolio Scope",
+      "redflag:triggerKeywords": ["multi-SKU", "product portfolio", "multiple SKUs", "product line"],
+      "redflag:hasImpactArea": "redflag:Scope",
+      "redflag:hasSeverity": "redflag:Medium",
+      "redflag:recommendation": "Define specific SKUs in scope vs. future phases"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:LoadBearingSoftFlag",
+      "redflag:id": "RF018",
+      "redflag:name": "Load-Bearing Soft Goods",
+      "redflag:triggerKeywords": ["load bearing", "structural fabric", "strength requirements", "load testing"],
+      "redflag:hasImpactArea": "redflag:Hours",
+      "redflag:hasSeverity": "redflag:High",
+      "redflag:recommendation": "Add hours for structural analysis and testing protocols"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:AIGeneratedConceptsFlag",
+      "redflag:id": "RF019",
+      "redflag:name": "AI-Generated Concepts Only",
+      "redflag:triggerKeywords": ["AI generated", "computer generated", "algorithmic design", "AI concepts"],
+      "redflag:hasImpactArea": "redflag:Rate",
+      "redflag:hasSeverity": "redflag:Critical",
+      "redflag:recommendation": "Decline project - conflicts with human-centered design philosophy"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:IPPatentRiskFlag",
+      "redflag:id": "RF020",
+      "redflag:name": "IP/Patent Risk",
+      "redflag:triggerKeywords": ["patent", "IP risk", "intellectual property", "prior art", "patent search"],
+      "redflag:hasImpactArea": "redflag:Exclusion",
+      "redflag:hasSeverity": "redflag:High",
+      "redflag:recommendation": "Exclude patent search and IP analysis - refer to IP attorney"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:OEMBaseSourcingFlag",
+      "redflag:id": "RF021",
+      "redflag:name": "OEM Base Sourcing",
+      "redflag:triggerKeywords": ["OEM base", "existing product", "modify existing", "base platform"],
+      "redflag:hasImpactArea": "redflag:Hours",
+      "redflag:hasSeverity": "redflag:Low",
+      "redflag:recommendation": "Reduce ID phase hours if modifying existing OEM base"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:SKUVariationsManufacturingFlag",
+      "redflag:id": "RF022",
+      "redflag:name": "SKU Variations Through Manufacturing",
+      "redflag:triggerKeywords": ["manufacturing variations", "production variants", "tooling variants"],
+      "redflag:hasImpactArea": "redflag:Scope",
+      "redflag:hasSeverity": "redflag:Medium",
+      "redflag:recommendation": "Define manufacturing scope vs. design scope clearly"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:StandaloneIllustrationFlag",
+      "redflag:id": "RF023",
+      "redflag:name": "Standalone Illustration Work",
+      "redflag:triggerKeywords": ["illustration only", "graphic work", "artwork", "visual design"],
+      "redflag:hasImpactArea": "redflag:Rate",
+      "redflag:hasSeverity": "redflag:Low",
+      "redflag:recommendation": "Use illustration rates, not product development rates"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:LongEngagementCapFlag",
+      "redflag:id": "RF024",
+      "redflag:name": "Long Engagement Hour Caps",
+      "redflag:triggerKeywords": ["hour cap", "maximum hours", "budget limit", "cost ceiling"],
+      "redflag:hasImpactArea": "redflag:Pattern",
+      "redflag:hasSeverity": "redflag:Medium",
+      "redflag:recommendation": "Consider retainer model for long-term engagements"
+    },
+    {
+      "@type": "redflag:RedFlag",
+      "@id": "redflag:NonStandardRatesFlag",
+      "redflag:id": "RF025",
+      "redflag:name": "Non-Standard Rates Warning",
+      "redflag:triggerKeywords": ["discounted rate", "special pricing", "reduced rate", "budget constraints"],
+      "redflag:hasImpactArea": "redflag:Rate",
+      "redflag:hasSeverity": "redflag:Medium",
+      "redflag:recommendation": "Justify rate deviation and get approval before proceeding"
+    },
+    {
+      "@type": "redflag:ScopeExclusion",
+      "@id": "redflag:MockupCosts",
+      "redflag:name": "Mockup Costs",
+      "rdfs:comment": "Physical mockup fabrication costs always excluded"
+    },
+    {
+      "@type": "redflag:ScopeExclusion",
+      "@id": "redflag:PrototypeCosts",
+      "redflag:name": "Prototype Costs",
+      "rdfs:comment": "Prototype fabrication and materials costs always excluded"
+    },
+    {
+      "@type": "redflag:ScopeExclusion",
+      "@id": "redflag:SampleCosts",
+      "redflag:name": "Sample Costs",
+      "rdfs:comment": "Material samples and supplier samples costs always excluded"
+    },
+    {
+      "@type": "redflag:ScopeExclusion",
+      "@id": "redflag:TestingMaterials",
+      "redflag:name": "Testing Materials",
+      "rdfs:comment": "Testing materials and lab costs always excluded"
+    },
+    {
+      "@type": "redflag:ScopeExclusion",
+      "@id": "redflag:ToolingCosts",
+      "redflag:name": "Tooling Costs",
+      "rdfs:comment": "Production tooling costs always excluded"
+    },
+    {
+      "@type": "redflag:ScopeExclusion",
+      "@id": "redflag:ProductionCosts",
+      "redflag:name": "Production Costs",
+      "rdfs:comment": "Manufacturing and production costs always excluded"
+    },
+    {
+      "@type": "redflag:ScopeExclusion",
+      "@id": "redflag:ElectricalEngineering",
+      "redflag:name": "Electrical Engineering",
+      "rdfs:comment": "Electrical engineering work always excluded"
+    },
+    {
+      "@type": "redflag:ScopeExclusion",
+      "@id": "redflag:Renderings",
+      "redflag:name": "Renderings",
+      "rdfs:comment": "Marketing renderings always excluded unless specifically scoped"
+    }
+  ]
+}

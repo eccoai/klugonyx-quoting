@@ -1,0 +1,302 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "klg": "https://klugonyx.com/context/quoting/v1/",
+    "brief": "https://klugonyx.com/context/quoting/v1/brief/"
+  },
+  "@type": "owl:Ontology",
+  "@id": "brief:schema",
+  "name": "Project Brief Ontology",
+  "description": "Ontology for modeling project briefs, phase recommendations, template decisions, and structured output documents for client proposals. Defines the structure and content of automated project brief generation.",
+  "version": "1.0.0",
+  "status": "active",
+  "namespace": "https://klugonyx.com/context/quoting/v1/brief/",
+  "prefix": "brief:",
+  "dateCreated": "2026-04-02",
+  "dateModified": "2026-04-02",
+  "creator": {
+    "@type": "Organization",
+    "name": "Klugonyx Product Development"
+  },
+  "@graph": [
+    {
+      "@type": "owl:Class",
+      "@id": "brief:ProjectBrief",
+      "rdfs:label": "Project Brief",
+      "rdfs:comment": "Complete structured project brief document for client proposals"
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "brief:PhaseRecommendation",
+      "rdfs:label": "Phase Recommendation",
+      "rdfs:comment": "Specific phase recommendation with hours, rates, and rationale"
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "brief:TemplateDecision",
+      "rdfs:label": "Template Decision",
+      "rdfs:comment": "Decision on which proposal template tier to use",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:oneOf": {
+          "@list": [
+            "brief:Light",
+            "brief:Classic",
+            "brief:Premium"
+          ]
+        }
+      }
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:projectName",
+      "rdfs:label": "project name",
+      "rdfs:comment": "Name of the project",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:clientName",
+      "rdfs:label": "client name",
+      "rdfs:comment": "Name of the client organization",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:productDescription",
+      "rdfs:label": "product description",
+      "rdfs:comment": "Detailed description of the product to be developed",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:productType",
+      "rdfs:label": "product type",
+      "rdfs:comment": "Type classification of the product",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:components",
+      "rdfs:label": "components",
+      "rdfs:comment": "Array of product components or elements",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:complexityFlags",
+      "rdfs:label": "complexity flags",
+      "rdfs:comment": "Array of identified complexity indicators",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:clientAssetsProvided",
+      "rdfs:label": "client assets provided",
+      "rdfs:comment": "Array of assets the client will provide",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:recommendedPhases",
+      "rdfs:label": "recommended phases",
+      "rdfs:comment": "Array of recommended project phases",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:totalEstimatedRangeMin",
+      "rdfs:label": "total estimated range minimum",
+      "rdfs:comment": "Minimum total project cost estimate",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:decimal"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:totalEstimatedRangeMax",
+      "rdfs:label": "total estimated range maximum",
+      "rdfs:comment": "Maximum total project cost estimate",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:decimal"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:paymentTermsRecommendation",
+      "rdfs:label": "payment terms recommendation",
+      "rdfs:comment": "Recommended payment terms for the project",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:retainerRequired",
+      "rdfs:label": "retainer required",
+      "rdfs:comment": "Whether a retainer is required for this project",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:boolean"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:exclusions",
+      "rdfs:label": "exclusions",
+      "rdfs:comment": "Array of items explicitly excluded from scope",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:redFlagsTriggered",
+      "rdfs:label": "red flags triggered",
+      "rdfs:comment": "Array of red flags identified in the project",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:templateTierRecommendation",
+      "rdfs:label": "template tier recommendation",
+      "rdfs:comment": "Recommended template tier (Light, Classic, Premium)",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:confidenceScore",
+      "rdfs:label": "confidence score",
+      "rdfs:comment": "Confidence score for the brief accuracy (0-100)",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:integer"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:preparerNotes",
+      "rdfs:label": "preparer notes",
+      "rdfs:comment": "Internal notes from the brief preparation process",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:phaseName",
+      "rdfs:label": "phase name",
+      "rdfs:comment": "Name of the recommended phase",
+      "rdfs:domain": "brief:PhaseRecommendation",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:hourRangeMin",
+      "rdfs:label": "hour range minimum",
+      "rdfs:comment": "Minimum estimated hours for the phase",
+      "rdfs:domain": "brief:PhaseRecommendation",
+      "rdfs:range": "xsd:integer"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:hourRangeMax",
+      "rdfs:label": "hour range maximum",
+      "rdfs:comment": "Maximum estimated hours for the phase",
+      "rdfs:domain": "brief:PhaseRecommendation",
+      "rdfs:range": "xsd:integer"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:ratePerHour",
+      "rdfs:label": "rate per hour",
+      "rdfs:comment": "Hourly rate for the phase",
+      "rdfs:domain": "brief:PhaseRecommendation",
+      "rdfs:range": "xsd:decimal"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:totalMin",
+      "rdfs:label": "total minimum",
+      "rdfs:comment": "Minimum total cost for the phase",
+      "rdfs:domain": "brief:PhaseRecommendation",
+      "rdfs:range": "xsd:decimal"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:totalMax",
+      "rdfs:label": "total maximum",
+      "rdfs:comment": "Maximum total cost for the phase",
+      "rdfs:domain": "brief:PhaseRecommendation",
+      "rdfs:range": "xsd:decimal"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:rationale",
+      "rdfs:label": "rationale",
+      "rdfs:comment": "Rationale for recommending this phase",
+      "rdfs:domain": "brief:PhaseRecommendation",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:tier",
+      "rdfs:label": "tier",
+      "rdfs:comment": "Template tier (Light, Classic, Premium)",
+      "rdfs:domain": "brief:TemplateDecision",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:triggerSignals",
+      "rdfs:label": "trigger signals",
+      "rdfs:comment": "Array of signals that triggered this template choice",
+      "rdfs:domain": "brief:TemplateDecision",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:typicalHours",
+      "rdfs:label": "typical hours",
+      "rdfs:comment": "Typical hour range for this template tier",
+      "rdfs:domain": "brief:TemplateDecision",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:roundsOfIdeation",
+      "rdfs:label": "rounds of ideation",
+      "rdfs:comment": "Number of ideation rounds for this template tier",
+      "rdfs:domain": "brief:TemplateDecision",
+      "rdfs:range": "xsd:integer"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "brief:complexity",
+      "rdfs:label": "complexity",
+      "rdfs:comment": "Complexity level associated with this template tier",
+      "rdfs:domain": "brief:TemplateDecision",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:ObjectProperty",
+      "@id": "brief:hasPhaseRecommendation",
+      "rdfs:label": "has phase recommendation",
+      "rdfs:comment": "Associates a project brief with its phase recommendations",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "brief:PhaseRecommendation"
+    },
+    {
+      "@type": "owl:ObjectProperty",
+      "@id": "brief:hasTemplateDecision",
+      "rdfs:label": "has template decision",
+      "rdfs:comment": "Associates a project brief with its template decision",
+      "rdfs:domain": "brief:ProjectBrief",
+      "rdfs:range": "brief:TemplateDecision"
+    }
+  ]
+}

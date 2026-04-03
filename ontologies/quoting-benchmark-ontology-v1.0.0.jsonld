@@ -1,0 +1,214 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "klg": "https://klugonyx.com/context/quoting/v1/",
+    "benchmark": "https://klugonyx.com/context/quoting/v1/benchmark/"
+  },
+  "@type": "owl:Ontology",
+  "@id": "benchmark:schema",
+  "name": "Quoting Benchmark Ontology",
+  "description": "Ontology for modeling quoting benchmarks, phases, hour ranges, rate rules, and payment terms for product development projects. Defines standard phases, hour estimates, hourly rates, and payment structures.",
+  "version": "1.0.0",
+  "status": "active",
+  "namespace": "https://klugonyx.com/context/quoting/v1/benchmark/",
+  "prefix": "benchmark:",
+  "dateCreated": "2026-04-02",
+  "dateModified": "2026-04-02",
+  "creator": {
+    "@type": "Organization",
+    "name": "Klugonyx Product Development"
+  },
+  "@graph": [
+    {
+      "@type": "owl:Class",
+      "@id": "benchmark:Phase",
+      "rdfs:label": "Project Phase",
+      "rdfs:comment": "Standard phases in product development projects",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:oneOf": {
+          "@list": [
+            "benchmark:ID",
+            "benchmark:EFP",
+            "benchmark:PER",
+            "benchmark:DFP",
+            "benchmark:TechPack",
+            "benchmark:Branding",
+            "benchmark:Packaging",
+            "benchmark:GraphicExploration",
+            "benchmark:CMFStrategy",
+            "benchmark:DesignConsultation",
+            "benchmark:SupplyChainRetainer"
+          ]
+        }
+      }
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "benchmark:HourRange",
+      "rdfs:label": "Hour Range",
+      "rdfs:comment": "Hour estimates for phases based on product complexity"
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "benchmark:RateRule",
+      "rdfs:label": "Rate Rule",
+      "rdfs:comment": "Hourly rate rules based on phase type and conditions"
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "benchmark:PaymentTerms",
+      "rdfs:label": "Payment Terms",
+      "rdfs:comment": "Payment terms and conditions",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:oneOf": {
+          "@list": [
+            "benchmark:Net30Standard",
+            "benchmark:Net7SmallerClients"
+          ]
+        }
+      }
+    },
+    {
+      "@type": "owl:Class",
+      "@id": "benchmark:PhasePattern",
+      "rdfs:label": "Phase Pattern",
+      "rdfs:comment": "Common phase combinations and sequences",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:oneOf": {
+          "@list": [
+            "benchmark:Standard",
+            "benchmark:IDGatesEFP",
+            "benchmark:PEROnly",
+            "benchmark:NoID"
+          ]
+        }
+      }
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "benchmark:minHours",
+      "rdfs:label": "minimum hours",
+      "rdfs:comment": "Minimum estimated hours for a phase",
+      "rdfs:domain": "benchmark:HourRange",
+      "rdfs:range": "xsd:integer"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "benchmark:maxHours",
+      "rdfs:label": "maximum hours",
+      "rdfs:comment": "Maximum estimated hours for a phase",
+      "rdfs:domain": "benchmark:HourRange",
+      "rdfs:range": "xsd:integer"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "benchmark:ratePerHour",
+      "rdfs:label": "rate per hour",
+      "rdfs:comment": "Hourly rate in USD",
+      "rdfs:domain": "benchmark:RateRule",
+      "rdfs:range": "xsd:integer"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "benchmark:phaseType",
+      "rdfs:label": "phase type",
+      "rdfs:comment": "Type of phase for hour range application",
+      "rdfs:domain": "benchmark:HourRange",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "benchmark:productComplexity",
+      "rdfs:label": "product complexity",
+      "rdfs:comment": "Complexity tier for hour range application",
+      "rdfs:domain": "benchmark:HourRange",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:DatatypeProperty",
+      "@id": "benchmark:condition",
+      "rdfs:label": "rate condition",
+      "rdfs:comment": "Condition under which this rate applies",
+      "rdfs:domain": "benchmark:RateRule",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@type": "owl:ObjectProperty",
+      "@id": "benchmark:hasHourRange",
+      "rdfs:label": "has hour range",
+      "rdfs:comment": "Associates a phase with its hour range estimates",
+      "rdfs:domain": "benchmark:Phase",
+      "rdfs:range": "benchmark:HourRange"
+    },
+    {
+      "@type": "owl:ObjectProperty",
+      "@id": "benchmark:hasRateRule",
+      "rdfs:label": "has rate rule",
+      "rdfs:comment": "Associates a phase with its rate rules",
+      "rdfs:domain": "benchmark:Phase",
+      "rdfs:range": "benchmark:RateRule"
+    },
+    {
+      "@type": "benchmark:RateRule",
+      "@id": "benchmark:DesignIDRate",
+      "rdfs:label": "Design/ID/Branding/Soft Goods Rate",
+      "benchmark:condition": "Design, ID, Branding, or Soft Goods work",
+      "benchmark:ratePerHour": 140
+    },
+    {
+      "@type": "benchmark:RateRule",
+      "@id": "benchmark:EngineeringEFPPERRate",
+      "rdfs:label": "Engineering EFP/PER Mechanical Rate",
+      "benchmark:condition": "EFP/PER mechanical engineering work",
+      "benchmark:ratePerHour": 195
+    },
+    {
+      "@type": "benchmark:RateRule",
+      "@id": "benchmark:EFPDocumentationRate",
+      "rdfs:label": "EFP Documentation/CMF/Soft Goods Rate",
+      "benchmark:condition": "EFP documentation, CMF, or soft goods work",
+      "benchmark:ratePerHour": 140
+    },
+    {
+      "@type": "benchmark:RateRule",
+      "@id": "benchmark:PERHybridRate",
+      "rdfs:label": "PER Hybrid Documentation Rate",
+      "benchmark:condition": "PER hybrid predominantly documentation work",
+      "benchmark:ratePerHour": 140
+    },
+    {
+      "@type": "benchmark:RateRule",
+      "@id": "benchmark:OverageRate",
+      "rdfs:label": "Overage Rate",
+      "benchmark:condition": "Work exceeding quoted hours",
+      "benchmark:ratePerHour": 195
+    },
+    {
+      "@type": "benchmark:RateRule",
+      "@id": "benchmark:RetainerStandardRate",
+      "rdfs:label": "Standard Retainer Rate",
+      "benchmark:condition": "Standard retainer engagement",
+      "benchmark:ratePerHour": 3500
+    },
+    {
+      "@type": "benchmark:RateRule",
+      "@id": "benchmark:RetainerMidRate",
+      "rdfs:label": "Mid-tier Retainer Rate",
+      "benchmark:condition": "Mid-tier retainer engagement",
+      "benchmark:ratePerHour": 2500
+    },
+    {
+      "@type": "benchmark:RateRule",
+      "@id": "benchmark:RetainerDiscountedRate",
+      "rdfs:label": "Discounted Retainer Rate",
+      "benchmark:condition": "Discounted retainer engagement",
+      "benchmark:ratePerHour": 2000
+    }
+  ]
+}
