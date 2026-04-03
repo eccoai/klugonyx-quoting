@@ -152,10 +152,12 @@ class PandaDocClient:
 
             if response.status_code == 201:
                 document = response.json()
+                doc_id = document.get('id')
+                editor_url = f"https://app.pandadoc.com/a/#/documents/{doc_id}" if doc_id else None
                 return {
                     "success": True,
-                    "document_id": document.get('id'),
-                    "document_url": document.get('url'),
+                    "document_id": doc_id,
+                    "document_url": editor_url,
                     "status": document.get('status'),
                     "name": document.get('name')
                 }

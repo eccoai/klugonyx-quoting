@@ -79,41 +79,60 @@ class KlugunyxSkillRunner:
         try:
             print("Calling Claude API to process transcript...")
 
-            # Prepare system prompt
             system_prompt = f"""You are the Klugonyx Quote Brief Skill. Follow the exact workflow defined in this SKILL.md:
 
 {self.skill_content}
 
-Process the provided transcript through all 6 sections with quality gates. Output the final JSON from Section 6 at the end of your response."""
+Process the provided transcript through all 6 sections with quality gates. At the very end of your response, output the Section 6 PandaDoc JSON payload inside a ```json code block. The JSON block is required."""
 
-            # Call Claude API
+            messages = [
+                {
+                    "role": "user",
+                    "content": f"Please process this discovery call transcript:\n\n{transcript}"
+                }
+            ]
+
             response = self.client.messages.create(
                 model="claude-sonnet-4-6",
-                max_tokens=4096,
+                max_tokens=8192,
                 system=system_prompt,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": f"Please process this discovery call transcript:\n\n{transcript}"
-                    }
-                ]
+                messages=messages
             )
 
-            # Extract response content
             response_text = response.content[0].text
-
             print("[OK] Claude API response received")
             print()
 
-            # Extract JSON from response
             json_output = self._extract_json_from_response(response_text)
 
             if json_output:
                 print("[OK] JSON output extracted successfully")
                 return {"success": True, "response": response_text, "json": json_output}
-            else:
-                print("[ERROR] No valid JSON found in response")
-                return {"success": False, "error": "No JSON output found", "response": response_text}
+
+            # JSON not found in main response — ask Claude to emit it directly
+            print("[WARNING] JSON not found in response, requesting JSON-only follow-up...")
+            messages.append({"role": "assistant", "content": response_text})
+            messages.append({
+                "role": "user",
+                "content": "Please output only the Section 6 PandaDoc JSON payload now, inside a ```json code block. Nothing else."
+            })
+
+            followup = self.client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=4096,
+                system=system_prompt,
+                messages=messages
+            )
+
+            followup_text = followup.content[0].text
+            json_output = self._extract_json_from_response(followup_text)
+
+            if json_output:
+                print("[OK] JSON extracted from follow-up response")
+                return {"success": True, "response": response_text, "json": json_output}
+
+            print("[ERROR] No valid JSON found in response or follow-up")
+            return {"success": False, "error": "No JSON output found", "response": response_text}
 
         except Exception as e:
             return {"success": False, "error": f"Claude API error: {str(e)}"}
