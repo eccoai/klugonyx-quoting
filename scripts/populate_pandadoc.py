@@ -28,20 +28,20 @@ class PandaDocClient:
     def get_template_id(self, product_type: str) -> str:
         """Get the appropriate PandaDoc template ID based on product type."""
         template_mapping = {
-            "hard good": os.getenv('PANDADOC_TEMPLATE_CLASSIC'),
-            "soft good": os.getenv('PANDADOC_TEMPLATE_CLASSIC'),
-            "hard/soft hybrid": os.getenv('PANDADOC_TEMPLATE_CLASSIC'),
-            "packaging": os.getenv('PANDADOC_TEMPLATE_LIGHT'),
-            "branding": os.getenv('PANDADOC_TEMPLATE_LIGHT'),
-            "graphic exploration": os.getenv('PANDADOC_TEMPLATE_LIGHT'),
-            "cmf strategy": os.getenv('PANDADOC_TEMPLATE_LIGHT'),
-            "supply chain": os.getenv('PANDADOC_TEMPLATE_PREMIUM')
+            "hard good": os.getenv("PANDADOC_TEMPLATE_HARDGOODS"),
+            "hard/soft hybrid": os.getenv("PANDADOC_TEMPLATE_HARDGOODS"),
+            "soft good": os.getenv("PANDADOC_TEMPLATE_SOFTGOODS"),
+            "packaging": os.getenv("PANDADOC_TEMPLATE_PACKAGING"),
+            "branding": os.getenv("PANDADOC_TEMPLATE_BRANDING"),
+            "graphic exploration": os.getenv("PANDADOC_TEMPLATE_BRANDING"),
+            "cmf strategy": os.getenv("PANDADOC_TEMPLATE_SOFTGOODS"),
+            "supply chain": os.getenv("PANDADOC_TEMPLATE_BRANDING")
         }
 
         template_id = template_mapping.get(product_type.lower())
         if not template_id:
-            # Default to classic template
-            template_id = os.getenv('PANDADOC_TEMPLATE_CLASSIC')
+            # Default to hard goods template
+            template_id = os.getenv('PANDADOC_TEMPLATE_HARDGOODS')
 
         if not template_id:
             raise ValueError(f"Template ID not found for product type: {product_type}")
