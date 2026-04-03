@@ -15,6 +15,9 @@ from dotenv import load_dotenv
 from anthropic import Anthropic
 from populate_pandadoc import populate_pandadoc
 
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stderr.reconfigure(encoding='utf-8')
+
 # Load environment variables
 load_dotenv()
 
@@ -74,7 +77,7 @@ class KlugunyxSkillRunner:
     def call_claude_api(self, transcript: str) -> Dict[str, Any]:
         """Call Claude API with SKILL.md as system prompt and transcript as user message."""
         try:
-            print("🤖 Calling Claude API to process transcript...")
+            print("Calling Claude API to process transcript...")
 
             # Prepare system prompt
             system_prompt = f"""You are the Klugonyx Quote Brief Skill. Follow the exact workflow defined in this SKILL.md:
@@ -99,17 +102,17 @@ Process the provided transcript through all 6 sections with quality gates. Outpu
             # Extract response content
             response_text = response.content[0].text
 
-            print("✅ Claude API response received")
+            print("[OK] Claude API response received")
             print()
 
             # Extract JSON from response
             json_output = self._extract_json_from_response(response_text)
 
             if json_output:
-                print("✅ JSON output extracted successfully")
+                print("[OK] JSON output extracted successfully")
                 return {"success": True, "response": response_text, "json": json_output}
             else:
-                print("❌ No valid JSON found in response")
+                print("[ERROR] No valid JSON found in response")
                 return {"success": False, "error": "No JSON output found", "response": response_text}
 
         except Exception as e:
@@ -146,17 +149,17 @@ Process the provided transcript through all 6 sections with quality gates. Outpu
             transcript = self.get_transcript_input()
 
             if not transcript.strip():
-                print("❌ No transcript provided")
+                print("[ERROR] No transcript provided")
                 return None
 
-            print(f"📄 Transcript received ({len(transcript)} characters)")
+            print(f"[BRIEF] Transcript received ({len(transcript)} characters)")
             print()
 
             # Call Claude API
             claude_result = self.call_claude_api(transcript)
 
             if not claude_result['success']:
-                print(f"❌ Claude API failed: {claude_result['error']}")
+                print(f"[ERROR] Claude API failed: {claude_result['error']}")
                 if 'response' in claude_result:
                     print("Response received:")
                     print(claude_result['response'][:500] + "..." if len(claude_result['response']) > 500 else claude_result['response'])
@@ -170,16 +173,16 @@ Process the provided transcript through all 6 sections with quality gates. Outpu
             print()
 
             # Call PandaDoc API
-            print("📄 Creating PandaDoc document...")
+            print("Creating PandaDoc document...")
             document_url = populate_pandadoc(claude_result['json'])
 
             return document_url
 
         except KeyboardInterrupt:
-            print("\n\n⏹️  Process interrupted by user")
+            print("\n\nProcess interrupted by user")
             return None
         except Exception as e:
-            print(f"❌ Workflow error: {str(e)}")
+            print(f"[ERROR] Workflow error: {str(e)}")
             return None
 
 def main():
@@ -190,8 +193,8 @@ def main():
 
         if document_url:
             print()
-            print("🎉 SUCCESS! Klugonyx quote brief automation complete!")
-            print(f"📋 PandaDoc Document URL: {document_url}")
+            print("[SUCCESS] Klugonyx quote brief automation complete!")
+            print(f"[LINK] PandaDoc Document URL: {document_url}")
             print()
             print("Next steps:")
             print("1. Review the generated proposal in PandaDoc")
@@ -199,11 +202,11 @@ def main():
             print("3. Send to client for signature")
         else:
             print()
-            print("❌ Workflow failed. Check the errors above.")
+            print("[ERROR] Workflow failed. Check the errors above.")
             sys.exit(1)
 
     except ValueError as e:
-        print(f"❌ Configuration error: {str(e)}")
+        print(f"[ERROR] Configuration error: {str(e)}")
         print("Make sure your .env file contains:")
         print("- ANTHROPIC_API_KEY")
         print("- PANDADOC_API_KEY")
@@ -212,7 +215,7 @@ def main():
         print("- PANDADOC_TEMPLATE_PREMIUM")
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Unexpected error: {str(e)}")
+        print(f"[ERROR] Unexpected error: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":

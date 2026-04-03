@@ -6,12 +6,16 @@ Takes JSON output from klugonyx-quote-brief skill and creates a populated PandaD
 
 import os
 import re
+import sys
 import json
 import requests
 from datetime import date
 from pathlib import Path
 from typing import Dict, Any, Optional
 from dotenv import load_dotenv
+
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stderr.reconfigure(encoding='utf-8')
 
 # Load environment variables
 load_dotenv()
@@ -419,8 +423,6 @@ def populate_pandadoc(skill_json_output: str) -> Optional[str]:
     return document_url
 
 if __name__ == "__main__":
-    import sys
-
     if len(sys.argv) != 2:
         print("Usage: py populate_pandadoc.py '<json_output>'")
         print("Example: py populate_pandadoc.py '{\"template_id\": \"...\", \"fields\": {...}}'")
