@@ -33,11 +33,11 @@ class PandaDocClient:
         template_mapping = {
             "hard good": os.getenv("PANDADOC_TEMPLATE_HARDGOODS_API"),
             "hard/soft hybrid": os.getenv("PANDADOC_TEMPLATE_HARDGOODS_API"),
-            "soft good": os.getenv("PANDADOC_TEMPLATE_SOFTGOODS"),
+            "soft good": os.getenv("PANDADOC_TEMPLATE_SOFTGOODS_API"),
             "packaging": os.getenv("PANDADOC_TEMPLATE_PACKAGING"),
             "branding": os.getenv("PANDADOC_TEMPLATE_BRANDING"),
             "graphic exploration": os.getenv("PANDADOC_TEMPLATE_BRANDING"),
-            "cmf strategy": os.getenv("PANDADOC_TEMPLATE_SOFTGOODS"),
+            "cmf strategy": os.getenv("PANDADOC_TEMPLATE_SOFTGOODS_API"),
             "supply chain": os.getenv("PANDADOC_TEMPLATE_BRANDING")
         }
 
