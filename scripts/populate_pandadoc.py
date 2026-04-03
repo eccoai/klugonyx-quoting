@@ -28,8 +28,8 @@ class PandaDocClient:
     def get_template_id(self, product_type: str) -> str:
         """Get the appropriate PandaDoc template ID based on product type."""
         template_mapping = {
-            "hard good": os.getenv("PANDADOC_TEMPLATE_HARDGOODS"),
-            "hard/soft hybrid": os.getenv("PANDADOC_TEMPLATE_HARDGOODS"),
+            "hard good": os.getenv("PANDADOC_TEMPLATE_HARDGOODS_API"),
+            "hard/soft hybrid": os.getenv("PANDADOC_TEMPLATE_HARDGOODS_API"),
             "soft good": os.getenv("PANDADOC_TEMPLATE_SOFTGOODS"),
             "packaging": os.getenv("PANDADOC_TEMPLATE_PACKAGING"),
             "branding": os.getenv("PANDADOC_TEMPLATE_BRANDING"),
@@ -40,39 +40,86 @@ class PandaDocClient:
 
         template_id = template_mapping.get(product_type.lower())
         if not template_id:
-            # Default to hard goods template
-            template_id = os.getenv('PANDADOC_TEMPLATE_HARDGOODS')
+            template_id = os.getenv('PANDADOC_TEMPLATE_HARDGOODS_API')
 
         if not template_id:
             raise ValueError(f"Template ID not found for product type: {product_type}")
 
         return template_id
 
+    def _build_tokens(self, skill_output: Dict[str, Any]) -> list:
+        """
+        Build PandaDoc tokens list from skill output fields and pricing tables.
+
+        Token mapping:
+          fields.project_overview    -> project_overview
+          fields.objectives          -> project_objectives
+          fields.deliverables        -> project_deliverables
+          fields.project_title       -> project_title
+          fields.client_name         -> client_name
+          fields.clients_name        -> clients_name
+          fields.reps_name           -> reps_name
+          fields.company             -> company, Client.Company
+          fields.title               -> client_title
+          fields.email               -> client_email
+          pricing_tables[0].sections[0] (ID)  -> id_hours, id_price
+          pricing_tables[0].sections[1] (EFP) -> efp_hours, efp_price
+          pricing_tables[0].sections[2] (PER) -> per_hours, per_price
+        """
+        fields = skill_output.get('fields', {})
+
+        tokens = [
+            {"name": "project_overview",     "value": fields.get('project_overview', '')},
+            {"name": "project_objectives",   "value": fields.get('objectives', '')},
+            {"name": "project_deliverables", "value": fields.get('deliverables', '')},
+            {"name": "project_title",        "value": fields.get('project_title', '')},
+            {"name": "client_name",          "value": fields.get('client_name', '')},
+            {"name": "clients_name",         "value": fields.get('clients_name', '')},
+            {"name": "reps_name",            "value": fields.get('reps_name', '')},
+            {"name": "company",              "value": fields.get('company', '')},
+            {"name": "Client.Company",       "value": fields.get('company', '')},
+            {"name": "client_title",         "value": fields.get('title', '')},
+            {"name": "client_email",         "value": fields.get('email', '')},
+        ]
+
+        # Extract phase hours and prices from pricing table sections
+        try:
+            sections = skill_output['pricing_tables'][0]['sections']
+            phase_map = {
+                'id':  ('id_hours',  'id_price'),
+                'efp': ('efp_hours', 'efp_price'),
+                'per': ('per_hours', 'per_price'),
+            }
+            for section in sections:
+                title_lower = section.get('title', '').lower()
+                for key, (hours_token, price_token) in phase_map.items():
+                    if f'({key})' in title_lower or title_lower.startswith(key):
+                        tokens.append({"name": hours_token, "value": section.get('qty', '')})
+                        tokens.append({"name": price_token, "value": section.get('subtotal', '')})
+                        break
+        except (KeyError, IndexError, TypeError):
+            pass
+
+        return tokens
+
     def create_document(self, skill_output: Dict[str, Any]) -> Dict[str, Any]:
         """Create a PandaDoc document from the skill JSON output."""
         try:
-            # Extract product type to determine template
             fields = skill_output.get('fields', {})
             product_type = self._extract_product_type(fields)
             template_id = self.get_template_id(product_type)
 
-            # Prepare document payload
             document_data = {
-                "name": f"{fields.get('project_title', 'Klugonyx Proposal')}",
+                "name": fields.get('project_title', 'Klugonyx Proposal'),
                 "template_uuid": template_id,
                 "recipients": skill_output.get('recipients', []),
-                "fields": fields,
+                "tokens": self._build_tokens(skill_output),
                 "metadata": {
                     "source": "klugonyx-quote-brief-skill",
                     "product_type": product_type
                 }
             }
 
-            # Add pricing tables if present
-            if 'pricing_tables' in skill_output:
-                document_data['pricing_tables'] = skill_output['pricing_tables']
-
-            # Create document via API
             response = requests.post(
                 f"{self.base_url}/documents",
                 headers=self.headers,
@@ -106,7 +153,6 @@ class PandaDocClient:
         """Extract product type from fields to determine template."""
         project_title = fields.get('project_title', '').lower()
 
-        # Look for product type indicators in the title or other fields
         if 'packaging' in project_title:
             return 'packaging'
         elif 'branding' in project_title:
@@ -118,7 +164,7 @@ class PandaDocClient:
         elif 'hybrid' in project_title:
             return 'hard/soft hybrid'
         else:
-            return 'hard good'  # Default to hard good
+            return 'hard good'
 
     def get_document_status(self, document_id: str) -> Dict[str, Any]:
         """Get the current status of a PandaDoc document."""
@@ -148,34 +194,29 @@ def populate_pandadoc(skill_json_output: str) -> Optional[str]:
         PandaDoc document URL if successful, None if failed
     """
     try:
-        # Parse JSON input
         skill_data = json.loads(skill_json_output)
-
-        # Create PandaDoc client
         client = PandaDocClient()
-
-        # Create document
         result = client.create_document(skill_data)
 
         if result['success']:
-            print(f"✅ PandaDoc document created successfully!")
+            print(f"PandaDoc document created successfully!")
             print(f"Document ID: {result['document_id']}")
             print(f"Document Name: {result['name']}")
             print(f"Status: {result['status']}")
             print(f"URL: {result['document_url']}")
             return result['document_url']
         else:
-            print(f"❌ Failed to create PandaDoc document:")
+            print(f"Failed to create PandaDoc document:")
             print(f"Error: {result['error']}")
             if 'details' in result:
                 print(f"Details: {result['details']}")
             return None
 
     except json.JSONDecodeError as e:
-        print(f"❌ Invalid JSON input: {str(e)}")
+        print(f"Invalid JSON input: {str(e)}")
         return None
     except Exception as e:
-        print(f"❌ Unexpected error: {str(e)}")
+        print(f"Unexpected error: {str(e)}")
         return None
 
 if __name__ == "__main__":
@@ -190,7 +231,7 @@ if __name__ == "__main__":
     document_url = populate_pandadoc(json_input)
 
     if document_url:
-        print(f"\n🔗 Final Document URL: {document_url}")
+        print(f"\nFinal Document URL: {document_url}")
         sys.exit(0)
     else:
         sys.exit(1)
