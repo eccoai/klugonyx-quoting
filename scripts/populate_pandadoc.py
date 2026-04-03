@@ -106,6 +106,8 @@ class PandaDocClient:
         enriched = []
         fields = skill_output.get('fields', {})
         company = fields.get('company', '')
+        if not company or company.lower() in ('unknown', '', 'none'):
+            company = fields.get('client_name', '')
         for r in recipients:
             recipient = dict(r)
             if company and 'company' not in recipient:
