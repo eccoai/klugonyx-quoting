@@ -119,27 +119,46 @@ Process the provided transcript through all 6 sections with quality gates. Outpu
             return {"success": False, "error": f"Claude API error: {str(e)}"}
 
     def _extract_json_from_response(self, response_text: str) -> Optional[str]:
-        """Extract JSON from Claude's response text."""
-        # Look for JSON blocks
-        json_pattern = r'```json\s*(\{.*?\})\s*```'
-        matches = re.findall(json_pattern, response_text, re.DOTALL)
+        """Extract JSON from Claude's response text.
 
-        if matches:
-            return matches[-1]  # Return the last JSON block
+        Strategy:
+        1. Try ```json ... ``` code blocks first (last one wins — Section 6 is last)
+        2. Fall back to raw_decode scanning from each '{' in the text
+        """
+        decoder = json.JSONDecoder()
 
-        # Look for JSON objects without markdown blocks
-        json_pattern = r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}'
-        matches = re.findall(json_pattern, response_text, re.DOTALL)
-
-        # Try to find the most complete JSON (likely the PandaDoc payload)
-        for match in reversed(matches):
+        # 1. Try markdown code blocks
+        code_block_pattern = r'```(?:json)?\s*(\{.*?)\s*```'
+        blocks = re.findall(code_block_pattern, response_text, re.DOTALL)
+        for block in reversed(blocks):
             try:
-                json.loads(match)
-                if 'template_id' in match or 'fields' in match:
-                    return match
+                obj = json.loads(block)
+                return json.dumps(obj)
             except json.JSONDecodeError:
                 continue
 
+        # 2. Scan for raw JSON objects using raw_decode (handles unlimited nesting)
+        candidates = []
+        for i, ch in enumerate(response_text):
+            if ch != '{':
+                continue
+            try:
+                obj, _ = decoder.raw_decode(response_text, i)
+                candidates.append(obj)
+            except json.JSONDecodeError:
+                continue
+
+        # Prefer the largest object that looks like a PandaDoc payload
+        candidates.sort(key=lambda o: len(json.dumps(o)), reverse=True)
+        for obj in candidates:
+            if 'fields' in obj or 'template_id' in obj or 'pricing_tables' in obj:
+                return json.dumps(obj)
+
+        # Return the largest JSON object found regardless of keys
+        if candidates:
+            return json.dumps(candidates[0])
+
+        print("[ERROR] Could not extract JSON from Claude response")
         return None
 
     def run_complete_workflow(self) -> Optional[str]:
