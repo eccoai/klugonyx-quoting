@@ -52,9 +52,8 @@ class PandaDocClient:
         Build PandaDoc tokens list from skill output fields and pricing tables.
 
         Token mapping:
-          fields.project_overview    -> project_overview
-          fields.objectives          -> project_objectives
-          fields.deliverables        -> project_deliverables
+          fields.project_overview    -> Project.Overview
+          fields.objectives          -> Project.Objectives
           fields.project_title       -> project_title
           fields.client_name         -> client_name
           fields.clients_name        -> clients_name
@@ -62,33 +61,32 @@ class PandaDocClient:
           fields.company             -> company, Client.Company
           fields.title               -> client_title
           fields.email               -> client_email
-          pricing_tables[0].sections[0] (ID)  -> id_hours, id_price
-          pricing_tables[0].sections[1] (EFP) -> efp_hours, efp_price
-          pricing_tables[0].sections[2] (PER) -> per_hours, per_price
+          pricing_tables[0].sections (ID)  -> ID.Hours, ID.Price
+          pricing_tables[0].sections (EFP) -> EFP.Hours, EFP.Price
+          pricing_tables[0].sections (PER) -> PER.Hours, PER.Price
         """
         fields = skill_output.get('fields', {})
 
         tokens = [
-            {"name": "project_overview",     "value": fields.get('project_overview', '')},
-            {"name": "project_objectives",   "value": fields.get('objectives', '')},
-            {"name": "project_deliverables", "value": fields.get('deliverables', '')},
-            {"name": "project_title",        "value": fields.get('project_title', '')},
-            {"name": "client_name",          "value": fields.get('client_name', '')},
-            {"name": "clients_name",         "value": fields.get('clients_name', '')},
-            {"name": "reps_name",            "value": fields.get('reps_name', '')},
-            {"name": "company",              "value": fields.get('company', '')},
-            {"name": "Client.Company",       "value": fields.get('company', '')},
-            {"name": "client_title",         "value": fields.get('title', '')},
-            {"name": "client_email",         "value": fields.get('email', '')},
+            {"name": "Project.Overview",   "value": fields.get('project_overview', '')},
+            {"name": "Project.Objectives", "value": fields.get('objectives', '')},
+            {"name": "project_title",      "value": fields.get('project_title', '')},
+            {"name": "client_name",        "value": fields.get('client_name', '')},
+            {"name": "clients_name",       "value": fields.get('clients_name', '')},
+            {"name": "reps_name",          "value": fields.get('reps_name', '')},
+            {"name": "company",            "value": fields.get('company', '')},
+            {"name": "Client.Company",     "value": fields.get('company', '')},
+            {"name": "client_title",       "value": fields.get('title', '')},
+            {"name": "client_email",       "value": fields.get('email', '')},
         ]
 
         # Extract phase hours and prices from pricing table sections
         try:
             sections = skill_output['pricing_tables'][0]['sections']
             phase_map = {
-                'id':  ('id_hours',  'id_price'),
-                'efp': ('efp_hours', 'efp_price'),
-                'per': ('per_hours', 'per_price'),
+                'id':  ('ID.Hours',  'ID.Price'),
+                'efp': ('EFP.Hours', 'EFP.Price'),
+                'per': ('PER.Hours', 'PER.Price'),
             }
             for section in sections:
                 title_lower = section.get('title', '').lower()
@@ -102,6 +100,19 @@ class PandaDocClient:
 
         return tokens
 
+    def _build_recipients(self, skill_output: Dict[str, Any]) -> list:
+        """Build recipients list with company field for Client.Company auto-population."""
+        recipients = skill_output.get('recipients', [])
+        enriched = []
+        fields = skill_output.get('fields', {})
+        company = fields.get('company', '')
+        for r in recipients:
+            recipient = dict(r)
+            if company and 'company' not in recipient:
+                recipient['company'] = company
+            enriched.append(recipient)
+        return enriched
+
     def create_document(self, skill_output: Dict[str, Any]) -> Dict[str, Any]:
         """Create a PandaDoc document from the skill JSON output."""
         try:
@@ -112,7 +123,7 @@ class PandaDocClient:
             document_data = {
                 "name": fields.get('project_title', 'Klugonyx Proposal'),
                 "template_uuid": template_id,
-                "recipients": skill_output.get('recipients', []),
+                "recipients": self._build_recipients(skill_output),
                 "tokens": self._build_tokens(skill_output),
                 "metadata": {
                     "source": "klugonyx-quote-brief-skill",
