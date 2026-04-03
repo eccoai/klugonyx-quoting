@@ -422,8 +422,8 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) != 2:
-        print("Usage: python populate_pandadoc.py '<json_output>'")
-        print("Example: python populate_pandadoc.py '{\"template_id\": \"...\", \"fields\": {...}}'")
+        print("Usage: py populate_pandadoc.py '<json_output>'")
+        print("Example: py populate_pandadoc.py '{\"template_id\": \"...\", \"fields\": {...}}'")
         sys.exit(1)
 
     json_input = sys.argv[1]
