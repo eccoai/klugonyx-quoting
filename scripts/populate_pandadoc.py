@@ -5,8 +5,11 @@ Takes JSON output from klugonyx-quote-brief skill and creates a populated PandaD
 """
 
 import os
+import re
 import json
 import requests
+from datetime import date
+from pathlib import Path
 from typing import Dict, Any, Optional
 from dotenv import load_dotenv
 
@@ -196,6 +199,179 @@ class PandaDocClient:
         except Exception as e:
             return {"error": f"Failed to get document status: {str(e)}"}
 
+_PRODUCT_TYPE_TO_SUBFOLDER = {
+    'hard good': 'hard-goods',
+    'hard/soft hybrid': 'hard-goods',
+    'soft good': 'soft-goods',
+    'cmf strategy': 'soft-goods',
+    'packaging': 'packaging',
+    'branding': 'branding',
+    'graphic exploration': 'branding',
+    'supply chain': 'branding',
+}
+
+
+def _slugify(text: str) -> str:
+    """Convert text to a lowercase hyphenated slug."""
+    text = re.sub(r'[^a-zA-Z0-9\s]', '', text).strip().lower()
+    return re.sub(r'\s+', '-', text)
+
+
+def _extract_product_type_from_fields(fields: Dict[str, Any]) -> str:
+    """Mirror of PandaDocClient._extract_product_type for standalone use."""
+    project_title = fields.get('project_title', '').lower()
+    if 'packaging' in project_title:
+        return 'packaging'
+    elif 'branding' in project_title:
+        return 'branding'
+    elif 'supply chain' in project_title:
+        return 'supply chain'
+    elif 'soft' in project_title:
+        return 'soft good'
+    elif 'hybrid' in project_title:
+        return 'hard/soft hybrid'
+    return 'hard good'
+
+
+def save_brief_markdown(skill_data: Dict[str, Any], document_url: Optional[str]) -> Optional[str]:
+    """
+    Save a markdown brief to the appropriate /briefs subfolder.
+
+    Returns the file path if saved successfully, None otherwise.
+    """
+    try:
+        fields = skill_data.get('fields', {})
+        recipients = skill_data.get('recipients', [])
+
+        # Determine subfolder from product type
+        product_type = _extract_product_type_from_fields(fields)
+        subfolder = _PRODUCT_TYPE_TO_SUBFOLDER.get(product_type, 'hard-goods')
+
+        # Client last name — prefer recipients list, fall back to last word of client_name
+        client_last_name = ''
+        if recipients:
+            client_last_name = recipients[0].get('last_name', '')
+        if not client_last_name:
+            parts = fields.get('client_name', '').strip().split()
+            client_last_name = parts[-1] if parts else 'client'
+
+        # Product slug — strip "// ..." suffix from project title
+        project_title = fields.get('project_title', 'untitled')
+        slug_base = project_title.split('//')[0].strip()
+        product_slug = _slugify(slug_base)
+
+        today = date.today().strftime('%Y-%m-%d')
+        filename = f"{client_last_name.lower()}-{product_slug}-{today}.md"
+
+        # Resolve briefs directory relative to this script
+        repo_root = Path(__file__).resolve().parent.parent
+        briefs_dir = repo_root / 'briefs' / subfolder
+        briefs_dir.mkdir(parents=True, exist_ok=True)
+        filepath = briefs_dir / filename
+
+        # Build phase recommendations table
+        phase_lines = []
+        try:
+            sections = skill_data['pricing_tables'][0]['sections']
+            phase_lines.append('| Phase | Price/hr | Hours Estimated | Estimated Phase Price |')
+            phase_lines.append('|---|---|---|---|')
+            for section in sections:
+                title = section.get('title', '')
+                price = section.get('price', '—')
+                qty = section.get('qty', '—')
+                subtotal = section.get('subtotal', '—')
+                phase_lines.append(f'| {title} | {price} | {qty} | {subtotal} |')
+        except (KeyError, IndexError, TypeError):
+            phase_lines.append('_Phase data not available._')
+
+        # Build red flags section
+        red_flags = skill_data.get('red_flags', [])
+        if red_flags:
+            flag_lines = ['| Flag | Severity | Action Required |', '|---|---|---|']
+            for flag in red_flags:
+                name = flag.get('name', flag.get('flag', ''))
+                severity = flag.get('severity', '')
+                action = flag.get('recommendation', flag.get('action', ''))
+                flag_lines.append(f'| {name} | {severity} | {action} |')
+            red_flags_section = '\n'.join(flag_lines)
+        else:
+            red_flags_section = '_Red flag data not included in JSON output. See full brief analysis in conversation._'
+
+        # Assemble client contact block
+        client_name = fields.get('client_name', '')
+        email = fields.get('email', '')
+        company = fields.get('company', '')
+        title = fields.get('title', '')
+        reps_name = fields.get('reps_name', '')
+
+        contact_lines = []
+        if client_name:
+            contact_lines.append(f'**Client:** {client_name}')
+        if company:
+            contact_lines.append(f'**Company:** {company}')
+        if title:
+            contact_lines.append(f'**Title:** {title}')
+        if email:
+            contact_lines.append(f'**Email:** {email}')
+        if reps_name:
+            contact_lines.append(f'**Rep:** {reps_name}')
+        contact_block = '\n'.join(contact_lines)
+
+        pandadoc_line = f'[View in PandaDoc]({document_url})' if document_url else '_PandaDoc document not created._'
+
+        content = f"""# {project_title}
+
+---
+
+## CLIENT
+
+{contact_block}
+
+---
+
+## PRODUCT OVERVIEW
+
+{fields.get('project_overview', '_Not provided._')}
+
+---
+
+## OBJECTIVES
+
+{fields.get('objectives', '_Not provided._')}
+
+---
+
+## DELIVERABLES
+
+{fields.get('deliverables', '_Not provided._')}
+
+---
+
+## PHASE RECOMMENDATIONS
+
+{chr(10).join(phase_lines)}
+
+---
+
+## RED FLAGS
+
+{red_flags_section}
+
+---
+
+## PANDADOC
+
+{pandadoc_line}
+"""
+
+        filepath.write_text(content, encoding='utf-8')
+        return str(filepath)
+
+    except Exception as e:
+        print(f"Warning: Could not save brief markdown: {str(e)}")
+        return None
+
+
 def populate_pandadoc(skill_json_output: str) -> Optional[str]:
     """
     Main function to create a PandaDoc document from skill output.
@@ -208,6 +384,12 @@ def populate_pandadoc(skill_json_output: str) -> Optional[str]:
     """
     try:
         skill_data = json.loads(skill_json_output)
+    except json.JSONDecodeError as e:
+        print(f"Invalid JSON input: {str(e)}")
+        return None
+
+    document_url = None
+    try:
         client = PandaDocClient()
         result = client.create_document(skill_data)
 
@@ -217,20 +399,21 @@ def populate_pandadoc(skill_json_output: str) -> Optional[str]:
             print(f"Document Name: {result['name']}")
             print(f"Status: {result['status']}")
             print(f"URL: {result['document_url']}")
-            return result['document_url']
+            document_url = result['document_url']
         else:
             print(f"Failed to create PandaDoc document:")
             print(f"Error: {result['error']}")
             if 'details' in result:
                 print(f"Details: {result['details']}")
-            return None
 
-    except json.JSONDecodeError as e:
-        print(f"Invalid JSON input: {str(e)}")
-        return None
     except Exception as e:
         print(f"Unexpected error: {str(e)}")
-        return None
+
+    brief_path = save_brief_markdown(skill_data, document_url)
+    if brief_path:
+        print(f"Brief saved: {brief_path}")
+
+    return document_url
 
 if __name__ == "__main__":
     import sys
