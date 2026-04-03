@@ -115,6 +115,9 @@ class PandaDocClient:
             recipient = dict(r)
             if company and 'company' not in recipient:
                 recipient['company'] = company
+            # Ensure role matches the template's client role name
+            if 'role' not in recipient or recipient['role'].lower() == 'client':
+                recipient['role'] = 'Role 2'
             enriched.append(recipient)
         return enriched
 
