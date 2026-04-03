@@ -8,6 +8,7 @@ import os
 import re
 import sys
 import json
+import subprocess
 import requests
 from datetime import date
 from pathlib import Path
@@ -374,11 +375,27 @@ def save_brief_markdown(skill_data: Dict[str, Any], document_url: Optional[str])
 """
 
         filepath.write_text(content, encoding='utf-8')
+        _git_push_brief(filepath)
         return str(filepath)
 
     except Exception as e:
         print(f"Warning: Could not save brief markdown: {str(e)}")
         return None
+
+
+def _git_push_brief(filepath: Path) -> None:
+    """Git add, commit, and push the brief file to the remote repo."""
+    try:
+        repo_root = filepath.parent.parent.parent
+        subprocess.run(["git", "add", str(filepath)],
+                       check=True, cwd=str(repo_root))
+        subprocess.run(["git", "commit", "-m", f"Add brief: {filepath.name}"],
+                       check=True, cwd=str(repo_root))
+        subprocess.run(["git", "push"],
+                       check=True, cwd=str(repo_root))
+        print(f"[OK] Brief pushed to GitHub: {filepath.name}")
+    except subprocess.CalledProcessError as e:
+        print(f"[WARNING] Could not push brief to GitHub: {e}")
 
 
 def populate_pandadoc(skill_json_output: str) -> Optional[str]:
