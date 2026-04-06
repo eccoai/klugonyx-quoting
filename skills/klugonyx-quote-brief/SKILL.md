@@ -164,6 +164,8 @@ ALWAYS include Supply Chain Retainer as placeholder line item.
 
 ALWAYS include High-level Production Costs at $0 if EFP is included.
 
+**HOURS RULE:** If the user provides specific hours from the product team, use those exact hours for every phase. Only use ontology benchmarks if no hours are provided.
+
 **Quality Gate G4 — Phases Scoped:**
 - [ ] All phases listed with hours and rates
 - [ ] Rate rules applied correctly
@@ -173,6 +175,8 @@ ALWAYS include High-level Production Costs at $0 if EFP is included.
 ---
 
 ### Section 5: Brief Generation
+
+**FORMATTING RULE:** Do NOT use em dashes (—) anywhere in the output. Use regular hyphens (-) instead.
 
 Generate the complete project brief output in this exact structure for PandaDoc population:
 

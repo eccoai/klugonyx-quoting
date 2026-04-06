@@ -21,6 +21,11 @@ sys.stderr.reconfigure(encoding='utf-8')
 # Load environment variables
 load_dotenv()
 
+def _strip_emdash(value: str) -> str:
+    """Replace em dashes with regular hyphens in text output."""
+    return value.replace('\u2014', '-') if isinstance(value, str) else value
+
+
 class PandaDocClient:
     def __init__(self):
         self.api_key = os.getenv('PANDADOC_API_KEY')
@@ -75,17 +80,21 @@ class PandaDocClient:
         """
         fields = skill_output.get('fields', {})
 
+        company = fields.get('company', '')
+        if not company or company.lower() in ('unknown', '', 'none'):
+            company = fields.get('client_name', '')
+
         tokens = [
-            {"name": "Project.Overview",   "value": fields.get('project_overview', '')},
-            {"name": "Project.Objectives", "value": fields.get('objectives', '')},
-            {"name": "project_title",      "value": fields.get('project_title', '')},
-            {"name": "client_name",        "value": fields.get('client_name', '')},
-            {"name": "clients_name",       "value": fields.get('clients_name', '')},
-            {"name": "reps_name",          "value": fields.get('reps_name', '')},
-            {"name": "company",            "value": fields.get('company', '')},
-            {"name": "Client.Company",     "value": fields.get('company', '')},
-            {"name": "client_title",       "value": fields.get('title', '')},
-            {"name": "client_email",       "value": fields.get('email', '')},
+            {"name": "Project.Overview",   "value": _strip_emdash(fields.get('project_overview', ''))},
+            {"name": "Project.Objectives", "value": _strip_emdash(fields.get('objectives', ''))},
+            {"name": "project_title",      "value": _strip_emdash(fields.get('project_title', ''))},
+            {"name": "client_name",        "value": _strip_emdash(fields.get('client_name', ''))},
+            {"name": "clients_name",       "value": _strip_emdash(fields.get('clients_name', ''))},
+            {"name": "reps_name",          "value": _strip_emdash(fields.get('reps_name', ''))},
+            {"name": "company",            "value": _strip_emdash(company)},
+            {"name": "Client.Company",     "value": _strip_emdash(company)},
+            {"name": "client_title",       "value": _strip_emdash(fields.get('title', ''))},
+            {"name": "client_email",       "value": _strip_emdash(fields.get('email', ''))},
         ]
 
         # Extract phase hours and prices from pricing table sections
@@ -100,8 +109,8 @@ class PandaDocClient:
                 title_lower = section.get('title', '').lower()
                 for key, (hours_token, price_token) in phase_map.items():
                     if f'({key})' in title_lower or title_lower.startswith(key):
-                        tokens.append({"name": hours_token, "value": section.get('qty', '')})
-                        tokens.append({"name": price_token, "value": section.get('subtotal', '')})
+                        tokens.append({"name": hours_token, "value": _strip_emdash(section.get('qty', ''))})
+                        tokens.append({"name": price_token, "value": _strip_emdash(section.get('subtotal', ''))})
                         break
         except (KeyError, IndexError, TypeError):
             pass
@@ -118,7 +127,8 @@ class PandaDocClient:
             company = fields.get('client_name', '')
         for r in recipients:
             recipient = dict(r)
-            if company and 'company' not in recipient:
+            # Always set company — overwrite empty/missing values with fallback
+            if company:
                 recipient['company'] = company
             # Ensure role matches the template's client role name
             if 'role' not in recipient or recipient['role'].lower() == 'client':
