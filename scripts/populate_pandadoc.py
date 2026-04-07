@@ -101,9 +101,10 @@ class PandaDocClient:
         try:
             sections = skill_output['pricing_tables'][0]['sections']
             phase_map = {
-                'id':  ('ID.Hours',  'ID.Price'),
-                'efp': ('EFP.Hours', 'EFP.Price'),
-                'per': ('PER.Hours', 'PER.Price'),
+                'id':        ('ID.Hours',  'ID.Price'),
+                'efp':       ('EFP.Hours', 'EFP.Price'),
+                'tech pack': ('EFP.Hours', 'EFP.Price'),
+                'per':       ('PER.Hours', 'PER.Price'),
             }
             for section in sections:
                 title_lower = section.get('title', '').lower()
