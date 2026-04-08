@@ -102,4 +102,4 @@ SUPPLY CHAIN (RETAINER)
 
 ## PANDADOC
 
-[View in PandaDoc](https://app.pandadoc.com/a/#/documents/CPP7C5uHBMTYedmQjK9HgP)
+_PandaDoc document not created._
